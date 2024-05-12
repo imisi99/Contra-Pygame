@@ -7,7 +7,7 @@ from player import Player
 from pygame.math import Vector2 as Vector
 
 
-class AllSprite(pygame.sprite.Group):
+class AllSprites(pygame.sprite.Group):
     def __init__(self):
         super().__init__()
         self.display_surface = pygame.display.get_surface()
@@ -28,7 +28,7 @@ class Begin:
         pygame.init()
         self.display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         self.clock = pygame.time.Clock()
-        self.all_sprites = AllSprite()
+        self.all_sprites = AllSprites()
 
         pygame.display.set_caption('Contra')
         self.setup()
@@ -37,6 +37,9 @@ class Begin:
         tmx_map = load_pygame('../data/map.tmx')
         for x, y, surf in tmx_map.get_layer_by_name('Level').tiles():
             Tile((x * 64, y * 64), surf, self.all_sprites)
+
+        for obj in tmx_map.get_layer_by_name('Entities'):
+            if 
         self.player = Player((200, 300), self.all_sprites)
 
     def run(self):
