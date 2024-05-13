@@ -2,7 +2,7 @@ import sys
 import pygame
 from settings import *
 from pytmx.util_pygame import load_pygame
-from tile import Tile
+from tile import Tile, CollisionTile
 from player import Player
 from pygame.math import Vector2 as Vector
 
@@ -17,7 +17,7 @@ class AllSprites(pygame.sprite.Group):
         self.offset.x = player.rect.centerx - WINDOW_WIDTH / 2
         self.offset.y = player.rect.centery - WINDOW_HEIGHT / 2
 
-        for sprite in self.sprites():
+        for sprite in sorted(self.sprites(), key=lambda sprite : sprite.z):
             offset_rect = sprite.image.get_rect(center=sprite.rect.center)
             offset_rect.center -= self.offset
             self.display_surface.blit(sprite.image, offset_rect)
@@ -29,6 +29,7 @@ class Begin:
         self.display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         self.clock = pygame.time.Clock()
         self.all_sprites = AllSprites()
+        self.collision_sprite = pygame.sprite.Group()
 
         pygame.display.set_caption('Contra')
         self.setup()
@@ -36,11 +37,15 @@ class Begin:
     def setup(self):
         tmx_map = load_pygame('../data/map.tmx')
         for x, y, surf in tmx_map.get_layer_by_name('Level').tiles():
-            Tile((x * 64, y * 64), surf, self.all_sprites)
+            CollisionTile((x * 64, y * 64), surf, [self.all_sprites, self.collision_sprite])
+
+        for layers in ['BG', 'BG Detail', 'FG Detail Bottom', 'FG Detail Top']:
+            for x, y, surf in tmx_map.get_layer_by_name(layers).tiles():
+                Tile((x * 64, y * 64), surf, self.all_sprites, LAYERS[layers])
 
         for obj in tmx_map.get_layer_by_name('Entities'):
-            if 
-        self.player = Player((200, 300), self.all_sprites)
+            if obj.name == 'Player':
+                self.player = Player((obj.x, obj.y), self.all_sprites, '../graphics/player', self.collision_sprite)
 
     def run(self):
         while True:
