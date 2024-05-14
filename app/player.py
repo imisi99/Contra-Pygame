@@ -18,8 +18,13 @@ class Player(pygame.sprite.Sprite):
         self.direction = Vector()
         self.pos = Vector(self.rect.topleft)
 
-        self.speed = 200
+        self.speed = 400
         self.old_rect = self.rect.copy()
+
+        self.on_floor = False
+        self.duck = False
+        self.gravity = 15
+        self.jump_speed = 2000
 
     def import_assets(self, path):
         self.animations = {}
@@ -46,29 +51,39 @@ class Player(pygame.sprite.Sprite):
         else:
             self.direction.x = 0
 
-        if keys[pygame.K_UP]:
-            self.direction.y = -5
-            if self.status == 'left_duck':
-                self.status == 'left_idle'
-            elif self.status == 'left':
-                self.status == 'left_jump'
-            elif self.status == 'right':
-                self.status == 'left_jump'
+        if keys[pygame.K_UP] and self.on_floor:
+            self.direction.y = -self.jump_speed
+
         elif keys[pygame.K_DOWN]:
-            self.direction.y = 1
-            if self.status == 'left':
-                self.status = 'left_duck'
-            elif self.status == 'right':
-                self.status = 'right_duck'
+            self.duck = True
         else:
-            self.direction.y = 0
+            self.duck = False
+
+    def get_status(self):
+        if self.direction.x == 0 and self.on_floor:
+            self.status = self.status.split('_')[0] + '_idle'
+        if self.direction.y != 0 and not self.on_floor:
+            self.status = self.status.split('_')[0] + '_jump'
+        if self.on_floor and self.duck:
+            self.status = self.status.split('_')[0] + '_duck'
+
+    def check_contact(self):
+        bottom_rect = pygame.Rect(0, 0, self.rect.width, 5)
+        bottom_rect.midtop = self.rect.midbottom
+        for sprite in self.collision_sprite.sprites():
+            if sprite.rect.colliderect(bottom_rect):
+                if self.direction.y > 0:
+                    self.on_floor = True
 
     def move(self, dt):
+        if self.duck and self.on_floor:
+            self.direction.x = 0
         self.pos.x += self.direction.x * self.speed * dt
         self.rect.x = round(self.pos.x)
         self.collision('horizontal')
 
-        self.pos.y += self.direction.y * self.speed * dt
+        self.direction.y += self.gravity
+        self.pos.y += self.direction.y * dt
         self.rect.y = round(self.pos.y)
         self.collision('vertical')
 
@@ -85,9 +100,13 @@ class Player(pygame.sprite.Sprite):
                 elif direction == 'vertical':
                     if self.rect.bottom >= sprite.rect.top and self.old_rect.bottom <= sprite.old_rect.top:
                         self.rect.bottom = sprite.rect.top
+                        self.on_floor = True
                     if self.rect.top <= sprite.rect.bottom and self.old_rect.top >= sprite.old_rect.bottom:
                         self.rect.top = sprite.rect.bottom
                     self.pos.y = self.rect.y
+                    self.direction.y = 0
+        if self.on_floor and self.direction.y != 0:
+            self.on_floor = False
 
     def animate(self, dt):
         self.frame_index += 7 * dt
@@ -99,5 +118,7 @@ class Player(pygame.sprite.Sprite):
     def update(self, dt):
         self.old_rect = self.rect.copy()
         self.input()
+        self.get_status()
         self.move(dt)
+        self.check_contact()
         self.animate(dt)
