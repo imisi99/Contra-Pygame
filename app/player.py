@@ -5,7 +5,7 @@ from os import walk
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, group, path, collision_sprite):
+    def __init__(self, pos, group, path, collision_sprite, shoot):
         super().__init__(group)
         self.import_assets(path)
         self.frame_index = 0
@@ -27,6 +27,8 @@ class Player(pygame.sprite.Sprite):
         self.jump_speed = 900
 
         self.moving_floor = None
+
+        self.shoot = shoot
 
     def import_assets(self, path):
         self.animations = {}
@@ -60,6 +62,11 @@ class Player(pygame.sprite.Sprite):
             self.duck = True
         else:
             self.duck = False
+
+        if keys[pygame.K_SPACE]:
+            direction = Vector(1, 0) if self.status.split('_')[0] == 'right' else Vector(-1, 0)
+            pos = self.rect.center + direction * 50
+            self.shoot(pos, direction)
 
     def get_status(self):
         if self.direction.x == 0 and self.on_floor:
