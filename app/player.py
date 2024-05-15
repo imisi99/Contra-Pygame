@@ -29,6 +29,15 @@ class Player(pygame.sprite.Sprite):
         self.moving_floor = None
 
         self.shoot = shoot
+        self.can_shoot = True
+        self.shoot_time = None
+        self.cooldown = 300
+
+    def shoot_timer(self):
+        if not self.can_shoot:
+            current_time = pygame.time.get_ticks()
+            if current_time - self.shoot_time > self.cooldown:
+                self.can_shoot = True
 
     def import_assets(self, path):
         self.animations = {}
@@ -63,10 +72,14 @@ class Player(pygame.sprite.Sprite):
         else:
             self.duck = False
 
-        if keys[pygame.K_SPACE]:
+        if keys[pygame.K_SPACE] and self.can_shoot:
             direction = Vector(1, 0) if self.status.split('_')[0] == 'right' else Vector(-1, 0)
             pos = self.rect.center + direction * 50
-            self.shoot(pos, direction)
+            y_offset = Vector(0, -16) if not self.duck else Vector(1, 10)
+            self.shoot(pos + y_offset, direction)
+
+            self.can_shoot = False
+            self.shoot_time = pygame.time.get_ticks()
 
     def get_status(self):
         if self.direction.x == 0 and self.on_floor:
@@ -137,6 +150,7 @@ class Player(pygame.sprite.Sprite):
     def update(self, dt):
         self.old_rect = self.rect.copy()
         self.input()
+        self.shoot_timer()
         self.get_status()
         self.move(dt)
         self.check_contact()
