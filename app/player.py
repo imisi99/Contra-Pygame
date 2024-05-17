@@ -2,56 +2,20 @@ import pygame
 from pygame.math import Vector2 as Vector
 from settings import *
 from os import walk
+from entity import Entity
 
 
-class Player(pygame.sprite.Sprite):
+class Player(Entity):
     def __init__(self, pos, group, path, collision_sprite, shoot):
-        super().__init__(group)
-        self.import_assets(path)
-        self.frame_index = 0
-        self.status = 'right'
-        self.image = self.animations[self.status][self.frame_index]
-        self.rect = self.image.get_rect(topleft=pos)
-        self.z = LAYERS['Level']
+        super().__init__(pos, group, path, shoot)
+
         self.collision_sprite = collision_sprite
 
-        self.direction = Vector()
-        self.pos = Vector(self.rect.topleft)
-
-        self.speed = 400
-        self.old_rect = self.rect.copy()
-
         self.on_floor = False
-        self.duck = False
         self.gravity = 15
         self.jump_speed = 900
 
         self.moving_floor = None
-
-        self.shoot = shoot
-        self.can_shoot = True
-        self.shoot_time = None
-        self.cooldown = 500
-
-    def shoot_timer(self):
-        if not self.can_shoot:
-            current_time = pygame.time.get_ticks()
-            if current_time - self.shoot_time > self.cooldown:
-                self.can_shoot = True
-
-    def import_assets(self, path):
-        self.animations = {}
-        for index, folder in enumerate(walk(path)):
-            if index == 0:
-                for name in folder[1]:
-                    self.animations[name] = []
-
-            else:
-                for file_name in sorted(folder[2], key=lambda string: int(string.split('.')[0])):
-                    path = folder[0].replace('\\', '/') + '/' + file_name
-                    surf = pygame.image.load(path).convert_alpha()
-                    key = folder[0].split('\\')[1]
-                    self.animations[key].append(surf)
 
     def input(self):
         keys = pygame.key.get_pressed()
@@ -139,13 +103,6 @@ class Player(pygame.sprite.Sprite):
                     self.direction.y = 0
         if self.on_floor and self.direction.y != 0:
             self.on_floor = False
-
-    def animate(self, dt):
-        self.frame_index += 7 * dt
-        if self.frame_index >= len(self.animations[self.status]):
-            self.frame_index = 0
-
-        self.image = self.animations[self.status][int(self.frame_index)]
 
     def update(self, dt):
         self.old_rect = self.rect.copy()
