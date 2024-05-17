@@ -9,7 +9,7 @@ class Player(pygame.sprite.Sprite):
         super().__init__(group)
         self.import_assets(path)
         self.frame_index = 0
-        self.status = 'right_idle'
+        self.status = 'right'
         self.image = self.animations[self.status][self.frame_index]
         self.rect = self.image.get_rect(topleft=pos)
         self.z = LAYERS['Level']
@@ -31,7 +31,7 @@ class Player(pygame.sprite.Sprite):
         self.shoot = shoot
         self.can_shoot = True
         self.shoot_time = None
-        self.cooldown = 300
+        self.cooldown = 500
 
     def shoot_timer(self):
         if not self.can_shoot:
@@ -76,7 +76,7 @@ class Player(pygame.sprite.Sprite):
             direction = Vector(1, 0) if self.status.split('_')[0] == 'right' else Vector(-1, 0)
             pos = self.rect.center + direction * 50
             y_offset = Vector(0, -16) if not self.duck else Vector(1, 10)
-            self.shoot(pos + y_offset, direction)
+            self.shoot(entity=self, pos=pos + y_offset, direction=direction)
 
             self.can_shoot = False
             self.shoot_time = pygame.time.get_ticks()

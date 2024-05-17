@@ -5,7 +5,7 @@ from pytmx.util_pygame import load_pygame
 from tile import Tile, CollisionTile, MovingPlatform
 from player import Player
 from pygame.math import Vector2 as Vector
-from bullet import Bullet
+from bullet import Bullet, FireAnimation
 
 
 class AllSprites(pygame.sprite.Group):
@@ -14,11 +14,25 @@ class AllSprites(pygame.sprite.Group):
         self.display_surface = pygame.display.get_surface()
         self.offset = Vector()
 
+        self.fg_sky = pygame.image.load('../graphics/sky/fg_sky.png').convert_alpha()
+        self.bg_sky = pygame.image.load('../graphics/sky/bg_sky.png').convert_alpha()
+        map_tmx = load_pygame('../data/map.tmx')
+
+        self.padding = WINDOW_WIDTH / 2
+        self.sky_width = self.fg_sky.get_width()
+        self.map_width = map_tmx.tilewidth * map_tmx.width + (2 * self.padding)
+        self.sky_num = self.map_width // self.sky_width
+
     def custom_draw(self, player):
         self.offset.x = player.rect.centerx - WINDOW_WIDTH / 2
         self.offset.y = player.rect.centery - WINDOW_HEIGHT / 2
 
-        for sprite in sorted(self.sprites(), key=lambda sprite : sprite.z):
+        for x in range(int(self.sky_num)):
+            x_pos = -self.padding + (x * self.sky_width)
+            self.display_surface.blit(self.fg_sky, (x_pos - self.offset.x / 2.5, 850 - self.offset.y / 2.5))
+            self.display_surface.blit(self.bg_sky, (x_pos - self.offset.x / 2, 850 - self.offset.y / 2))
+
+        for sprite in sorted(self.sprites(), key=lambda sprite: sprite.z):
             offset_rect = sprite.image.get_rect(center=sprite.rect.center)
             offset_rect.center -= self.offset
             self.display_surface.blit(sprite.image, offset_rect)
@@ -38,6 +52,8 @@ class Begin:
         self.setup()
 
         self.bullet_surf = pygame.image.load('../graphics/bullet.png').convert_alpha()
+        self.fire_surf = [pygame.image.load('../graphics/fire/0.png').convert_alpha(),
+                          pygame.image.load('../graphics/fire/1.png').convert_alpha()]
 
     def setup(self):
         tmx_map = load_pygame('../data/map.tmx')
@@ -50,7 +66,8 @@ class Begin:
 
         for obj in tmx_map.get_layer_by_name('Entities'):
             if obj.name == 'Player':
-                self.player = Player((obj.x, obj.y), self.all_sprites, '../graphics/player', self.collision_sprite, self.shoot)
+                self.player = Player((obj.x, obj.y), self.all_sprites, '../graphics/player', self.collision_sprite,
+                                     self.shoot)
 
         self.platform_border = []
         for obj in tmx_map.get_layer_by_name('Platforms'):
@@ -78,8 +95,14 @@ class Begin:
                 platform.pos.y = platform.rect.y
                 platform.direction.y = -1
 
-    def shoot(self, pos, direction):
+    def bullet_collision(self):
+        for bullet in self.bullet_sprite.sprites():
+            if pygame.sprite.spritecollide(bullet, self.collision_sprite, False):
+                bullet.kill()
+
+    def shoot(self, pos, direction, entity):
         Bullet(pos, self.bullet_surf, direction, [self.all_sprites, self.bullet_sprite])
+        FireAnimation(entity, self.fire_surf, direction, [self.all_sprites])
 
     def run(self):
         while True:
@@ -93,6 +116,8 @@ class Begin:
 
             self.platform_collision()
             self.all_sprites.update(dt)
+
+            self.bullet_collision()
 
             self.all_sprites.custom_draw(self.player)
 
