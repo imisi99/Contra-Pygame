@@ -1,7 +1,5 @@
 import pygame
 from pygame.math import Vector2 as Vector
-from os import walk
-from settings import *
 from entity import Entity
 
 

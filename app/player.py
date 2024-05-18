@@ -1,7 +1,5 @@
 import pygame
 from pygame.math import Vector2 as Vector
-from settings import *
-from os import walk
 from entity import Entity
 
 
@@ -13,12 +11,14 @@ class Player(Entity):
 
         self.on_floor = False
         self.gravity = 15
-        self.jump_speed = 900
+        self.jump_speed = 1300
 
         self.moving_floor = None
 
         self.health = 10
         self.invulnerable_duration = 500
+
+        self.cooldown = 200
 
     def input(self):
         keys = pygame.key.get_pressed()
@@ -48,6 +48,7 @@ class Player(Entity):
             self.can_shoot = False
             self.shoot_time = pygame.time.get_ticks()
             self.bullet_sound.play()
+
     def get_status(self):
         if self.direction.x == 0 and self.on_floor:
             self.status = self.status.split('_')[0] + '_idle'
@@ -118,5 +119,6 @@ class Player(Entity):
 
         self.blink()
         self.invulnerable_timer()
-
-
+        if self.rect.x >= 4700:
+            self.rect.x = 4700
+            self.pos = self.rect

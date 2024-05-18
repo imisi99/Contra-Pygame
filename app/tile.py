@@ -28,4 +28,3 @@ class MovingPlatform(CollisionTile):
         self.old_rect = self.rect.copy()
         self.pos.y += self.direction.y * self.speed * dt
         self.rect.topleft = (round(self.pos.x), round(self.pos.y))
-

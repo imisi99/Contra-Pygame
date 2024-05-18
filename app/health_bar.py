@@ -22,11 +22,8 @@ class EnemyNum:
         self.font = pygame.font.Font('../graphics/subatomic.ttf', 20)
 
     def display(self):
-        text = f'Enimies: {len(self.enemies)}'
+        text = f'Enemies: {len(self.enemies)}'
         display = self.font.render(text, True, 'yellow')
         display_rect = display.get_rect(center=(WINDOW_WIDTH - 100, 30))
         pygame.draw.rect(self.display_surface, 'green', display_rect.inflate(30, 30), width=5, border_radius=10)
         self.display_surface.blit(display, display_rect)
-
-
-

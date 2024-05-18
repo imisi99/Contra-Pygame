@@ -17,7 +17,7 @@ class Entity(pygame.sprite.Sprite):
         self.old_rect = self.rect.copy()
 
         self.z = LAYERS['Level']
-        self.speed = 400
+        self.speed = 500
 
         self.mask = pygame.mask.from_surface(self.image)
 

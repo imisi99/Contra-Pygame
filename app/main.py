@@ -77,10 +77,12 @@ class Begin:
 
         for obj in tmx_map.get_layer_by_name('Entities'):
             if obj.name == 'Player':
-                self.player = Player((obj.x, obj.y), [self.all_sprites, self.vulnerable_sprite], '../graphics/player', self.collision_sprite,
+                self.player = Player((obj.x, obj.y), [self.all_sprites, self.vulnerable_sprite],
+                                     '../graphics/player', self.collision_sprite,
                                      self.shoot)
             if obj.name == 'Enemy':
-                Enemy((obj.x, obj.y), [self.all_sprites, self.vulnerable_sprite, self.enemy_sprite], '../graphics/enemies', self.shoot, self.player, self.collision_sprite)
+                Enemy((obj.x, obj.y), [self.all_sprites, self.vulnerable_sprite, self.enemy_sprite],
+                      '../graphics/enemies', self.shoot, self.player, self.collision_sprite)
 
         self.platform_border = []
         for obj in tmx_map.get_layer_by_name('Platforms'):
@@ -157,7 +159,8 @@ class Begin:
                 text = 'You died Press P to play again or Q to quit'
                 display = self.font.render(text, True, 'green')
                 display_rect = display.get_rect(center=(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2))
-                pygame.draw.rect(self.display_surface, 'yellow', display_rect.inflate(30, 30), width=5, border_radius=10)
+                pygame.draw.rect(self.display_surface, 'yellow', display_rect.inflate(30, 30), width=5,
+                                 border_radius=10)
                 self.display_surface.blit(display, display_rect)
 
                 keys = pygame.key.get_pressed()
