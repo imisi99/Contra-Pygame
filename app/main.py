@@ -3,10 +3,10 @@ import pygame
 from settings import *
 from pytmx.util_pygame import load_pygame
 from tile import Tile, CollisionTile, MovingPlatform
-from player import Player
 from pygame.math import Vector2 as Vector
 from bullet import Bullet, FireAnimation
 from enemy import Enemy
+from player import Player
 from health_bar import HealthBar, EnemyNum
 
 
@@ -147,7 +147,7 @@ class Begin:
                 self.health_bar.display()
                 self.score_count.display()
 
-                if self.time < 7:
+                if self.time < 5:
                     text = 'Press space bar to shoot and arrows to navigate'
                     display = self.font.render(text, True, 'yellow')
                     display_rect = display.get_rect(center=(WINDOW_WIDTH / 2, WINDOW_HEIGHT - 600))
