@@ -16,7 +16,7 @@ class Enemy(Entity):
         self.cooldown = 1000
 
     def get_status(self):
-        if self.player.rect.centerx < self.rect.centerx and self.health > 0:
+        if self.player.rect.centerx < self.rect.centerx:
             self.status = 'left'
         else:
             self.status = 'right'
@@ -36,6 +36,7 @@ class Enemy(Entity):
 
             self.can_shoot = False
             self.shoot_time = pygame.time.get_ticks()
+            self.bullet_sound.play()
 
     def update(self, dt):
         self.get_status()

@@ -11,7 +11,7 @@ class Entity(pygame.sprite.Sprite):
 
         self.import_assets(path)
         self.frame_index = 0
-        self.status = 'right'
+        self.status = 'left'
         self.image = self.animations[self.status][self.frame_index]
         self.rect = self.image.get_rect(topleft=pos)
         self.old_rect = self.rect.copy()
@@ -35,6 +35,10 @@ class Entity(pygame.sprite.Sprite):
         self.is_vulnerable = True
         self.hit_time = None
         self.invulnerable_duration = 200
+        self.hit_sound = pygame.mixer.Sound('../audio/hit.wav')
+        self.bullet_sound = pygame.mixer.Sound('../audio/bullet.wav')
+        self.hit_sound.set_volume(0.3)
+        self.bullet_sound.set_volume(0.3)
 
     def blink(self):
         if not self.is_vulnerable:
@@ -46,13 +50,17 @@ class Entity(pygame.sprite.Sprite):
 
     def wave_value(self):
         value = sin(pygame.time.get_ticks())
-        if value > 0 : return True
-        else: return False
+        if value > 0:
+            return True
+        else:
+            return False
+
     def damage(self):
         if self.is_vulnerable:
             self.health -= 1
             self.is_vulnerable = False
             self.hit_time = pygame.time.get_ticks()
+            self.hit_sound.play()
 
     def check_death(self):
         if self.health <= 0:

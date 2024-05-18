@@ -7,6 +7,7 @@ from player import Player
 from pygame.math import Vector2 as Vector
 from bullet import Bullet, FireAnimation
 from enemy import Enemy
+from health_bar import HealthBar
 
 
 class AllSprites(pygame.sprite.Group):
@@ -49,13 +50,20 @@ class Begin:
         self.platform_sprite = pygame.sprite.Group()
         self.bullet_sprite = pygame.sprite.Group()
         self.vulnerable_sprite = pygame.sprite.Group()
+        self.enemy_sprite = pygame.sprite.Group()
 
         pygame.display.set_caption('Contra')
         self.setup()
+        self.health_bar = HealthBar(self.player)
 
+        self.font = pygame.font.Font('../graphics/subatomic.ttf', 25)
         self.bullet_surf = pygame.image.load('../graphics/bullet.png').convert_alpha()
         self.fire_surf = [pygame.image.load('../graphics/fire/0.png').convert_alpha(),
                           pygame.image.load('../graphics/fire/1.png').convert_alpha()]
+
+        self.music = pygame.mixer.Sound('../audio/music.wav')
+        self.music.set_volume(0.4)
+        self.music.play(-1)
 
     def setup(self):
         tmx_map = load_pygame('../data/map.tmx')
@@ -71,7 +79,7 @@ class Begin:
                 self.player = Player((obj.x, obj.y), [self.all_sprites, self.vulnerable_sprite], '../graphics/player', self.collision_sprite,
                                      self.shoot)
             if obj.name == 'Enemy':
-                Enemy((obj.x, obj.y), [self.all_sprites, self.vulnerable_sprite], '../graphics/enemies', self.shoot, self.player, self.collision_sprite)
+                Enemy((obj.x, obj.y), [self.all_sprites, self.vulnerable_sprite, self.enemy_sprite], '../graphics/enemies', self.shoot, self.player, self.collision_sprite)
 
         self.platform_border = []
         for obj in tmx_map.get_layer_by_name('Platforms'):
@@ -119,21 +127,73 @@ class Begin:
                     pygame.quit()
                     sys.exit()
 
-            dt = self.clock.tick(120) / 1000
-            self.display_surface.fill((249, 131, 103))
+            self.time = pygame.time.get_ticks() / 1000
 
-            if self.player.health >= 0:
+            dt = self.clock.tick(120) / 1000
+
+            if self.player.health > 0 and len(self.enemy_sprite):
 
                 self.platform_collision()
                 self.all_sprites.update(dt)
 
                 self.bullet_collision()
+                self.display_surface.fill((249, 131, 103))
 
                 self.all_sprites.custom_draw(self.player)
 
+                self.health_bar.display()
+
+                if self.time < 7:
+                    text = 'Press space bar to shoot and arrows to navigate'
+                    display = self.font.render(text, True, 'yellow')
+                    display_rect = display.get_rect(center=(WINDOW_WIDTH / 2, WINDOW_HEIGHT - 600))
+                    pygame.draw.rect(self.display_surface, 'green', display_rect.inflate(30, 30), width=5,
+                                     border_radius=10)
+                    self.display_surface.blit(display, display_rect)
+
             if self.player.health <= 0:
-                font = pygame.font.Font('../graphics/subatomic.ttf')
-                font.render("You Lose Press P to play again or Q to quit", True, (200, 200, 200), self.display_surface)
+                text = 'You died Press P to play again or Q to quit'
+                display = self.font.render(text, True, 'red')
+                display_rect = display.get_rect(center=(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2))
+                pygame.draw.rect(self.display_surface, 'green', display_rect.inflate(30, 30), width=5, border_radius=10)
+                self.display_surface.blit(display, display_rect)
+
+                keys = pygame.key.get_pressed()
+                if keys[pygame.K_p]:
+                    self.all_sprites.empty()
+                    self.collision_sprite.empty()
+                    self.bullet_sprite.empty()
+                    self.platform_sprite.empty()
+                    self.vulnerable_sprite.empty()
+                    self.enemy_sprite.empty()
+                    self.setup()
+                    self.health_bar = HealthBar(self.player)
+
+                if keys[pygame.K_q]:
+                    pygame.quit()
+                    sys.exit()
+
+            if not len(self.enemy_sprite):
+                text = 'You Won Press P to play again or Q to quit'
+                display = self.font.render(text, True, 'red')
+                display_rect = display.get_rect(center=(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2))
+                pygame.draw.rect(self.display_surface, 'green', display_rect.inflate(30, 30), width=5, border_radius=10)
+                self.display_surface.blit(display, display_rect)
+
+                keys = pygame.key.get_pressed()
+                if keys[pygame.K_p]:
+                    self.all_sprites.empty()
+                    self.collision_sprite.empty()
+                    self.bullet_sprite.empty()
+                    self.platform_sprite.empty()
+                    self.vulnerable_sprite.empty()
+                    self.enemy_sprite.empty()
+                    self.setup()
+                    self.health_bar = HealthBar(self.player)
+
+                if keys[pygame.K_q]:
+                    pygame.quit()
+                    sys.exit()
 
             pygame.display.update()
 

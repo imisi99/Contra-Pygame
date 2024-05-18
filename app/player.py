@@ -13,11 +13,11 @@ class Player(Entity):
 
         self.on_floor = False
         self.gravity = 15
-        self.jump_speed = 900
+        self.jump_speed = 1200
 
         self.moving_floor = None
 
-        self.health = 5
+        self.health = 10
         self.invulnerable_duration = 750
 
     def input(self):
@@ -47,7 +47,7 @@ class Player(Entity):
 
             self.can_shoot = False
             self.shoot_time = pygame.time.get_ticks()
-
+            self.bullet_sound.play()
     def get_status(self):
         if self.direction.x == 0 and self.on_floor:
             self.status = self.status.split('_')[0] + '_idle'
@@ -119,4 +119,4 @@ class Player(Entity):
         self.blink()
         self.invulnerable_timer()
 
-        self.check_death()
+
