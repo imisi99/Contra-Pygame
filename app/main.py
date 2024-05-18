@@ -48,6 +48,7 @@ class Begin:
         self.collision_sprite = pygame.sprite.Group()
         self.platform_sprite = pygame.sprite.Group()
         self.bullet_sprite = pygame.sprite.Group()
+        self.vulnerable_sprite = pygame.sprite.Group()
 
         pygame.display.set_caption('Contra')
         self.setup()
@@ -67,10 +68,10 @@ class Begin:
 
         for obj in tmx_map.get_layer_by_name('Entities'):
             if obj.name == 'Player':
-                self.player = Player((obj.x, obj.y), self.all_sprites, '../graphics/player', self.collision_sprite,
+                self.player = Player((obj.x, obj.y), [self.all_sprites, self.vulnerable_sprite], '../graphics/player', self.collision_sprite,
                                      self.shoot)
             if obj.name == 'Enemy':
-                Enemy((obj.x, obj.y), self.all_sprites, '../graphics/enemies', self.shoot, self.player, self.collision_sprite)
+                Enemy((obj.x, obj.y), [self.all_sprites, self.vulnerable_sprite], '../graphics/enemies', self.shoot, self.player, self.collision_sprite)
 
         self.platform_border = []
         for obj in tmx_map.get_layer_by_name('Platforms'):
@@ -103,6 +104,10 @@ class Begin:
             if pygame.sprite.spritecollide(bullet, self.collision_sprite, False):
                 bullet.kill()
 
+        for sprite in self.vulnerable_sprite.sprites():
+            if pygame.sprite.spritecollide(sprite, self.bullet_sprite, True, pygame.sprite.collide_mask):
+                sprite.damage()
+
     def shoot(self, pos, direction, entity):
         Bullet(pos, self.bullet_surf, direction, [self.all_sprites, self.bullet_sprite])
         FireAnimation(entity, self.fire_surf, direction, [self.all_sprites])
@@ -117,12 +122,18 @@ class Begin:
             dt = self.clock.tick(120) / 1000
             self.display_surface.fill((249, 131, 103))
 
-            self.platform_collision()
-            self.all_sprites.update(dt)
+            if self.player.health >= 0:
 
-            self.bullet_collision()
+                self.platform_collision()
+                self.all_sprites.update(dt)
 
-            self.all_sprites.custom_draw(self.player)
+                self.bullet_collision()
+
+                self.all_sprites.custom_draw(self.player)
+
+            if self.player.health <= 0:
+                font = pygame.font.Font('../graphics/subatomic.ttf')
+                font.render("You Lose Press P to play again or Q to quit", True, (200, 200, 200), self.display_surface)
 
             pygame.display.update()
 

@@ -17,6 +17,9 @@ class Player(Entity):
 
         self.moving_floor = None
 
+        self.health = 5
+        self.invulnerable_duration = 750
+
     def input(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
@@ -38,7 +41,7 @@ class Player(Entity):
 
         if keys[pygame.K_SPACE] and self.can_shoot:
             direction = Vector(1, 0) if self.status.split('_')[0] == 'right' else Vector(-1, 0)
-            pos = self.rect.center + direction * 50
+            pos = self.rect.center + direction * 60
             y_offset = Vector(0, -16) if not self.duck else Vector(1, 10)
             self.shoot(entity=self, pos=pos + y_offset, direction=direction)
 
@@ -112,3 +115,8 @@ class Player(Entity):
         self.move(dt)
         self.check_contact()
         self.animate(dt)
+
+        self.blink()
+        self.invulnerable_timer()
+
+        self.check_death()

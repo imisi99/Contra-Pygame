@@ -18,6 +18,8 @@ class Bullet(pygame.sprite.Sprite):
 
         self.start_time = pygame.time.get_ticks()
 
+        self.mask = pygame.mask.from_surface(self.image)
+
     def update(self, dt):
         self.pos += self.direction * self.speed * dt
         self.rect.center = (round(self.pos.x), round(self.pos.y))
