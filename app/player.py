@@ -13,12 +13,12 @@ class Player(Entity):
 
         self.on_floor = False
         self.gravity = 15
-        self.jump_speed = 1200
+        self.jump_speed = 900
 
         self.moving_floor = None
 
         self.health = 10
-        self.invulnerable_duration = 750
+        self.invulnerable_duration = 500
 
     def input(self):
         keys = pygame.key.get_pressed()

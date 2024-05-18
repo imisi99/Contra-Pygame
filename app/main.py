@@ -7,7 +7,7 @@ from player import Player
 from pygame.math import Vector2 as Vector
 from bullet import Bullet, FireAnimation
 from enemy import Enemy
-from health_bar import HealthBar
+from health_bar import HealthBar, EnemyNum
 
 
 class AllSprites(pygame.sprite.Group):
@@ -55,8 +55,9 @@ class Begin:
         pygame.display.set_caption('Contra')
         self.setup()
         self.health_bar = HealthBar(self.player)
+        self.score_count = EnemyNum(self.enemy_sprite)
 
-        self.font = pygame.font.Font('../graphics/subatomic.ttf', 25)
+        self.font = pygame.font.Font('../graphics/subatomic.ttf', 20)
         self.bullet_surf = pygame.image.load('../graphics/bullet.png').convert_alpha()
         self.fire_surf = [pygame.image.load('../graphics/fire/0.png').convert_alpha(),
                           pygame.image.load('../graphics/fire/1.png').convert_alpha()]
@@ -142,6 +143,7 @@ class Begin:
                 self.all_sprites.custom_draw(self.player)
 
                 self.health_bar.display()
+                self.score_count.display()
 
                 if self.time < 7:
                     text = 'Press space bar to shoot and arrows to navigate'
@@ -153,9 +155,9 @@ class Begin:
 
             if self.player.health <= 0:
                 text = 'You died Press P to play again or Q to quit'
-                display = self.font.render(text, True, 'red')
+                display = self.font.render(text, True, 'green')
                 display_rect = display.get_rect(center=(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2))
-                pygame.draw.rect(self.display_surface, 'green', display_rect.inflate(30, 30), width=5, border_radius=10)
+                pygame.draw.rect(self.display_surface, 'yellow', display_rect.inflate(30, 30), width=5, border_radius=10)
                 self.display_surface.blit(display, display_rect)
 
                 keys = pygame.key.get_pressed()
@@ -175,7 +177,7 @@ class Begin:
 
             if not len(self.enemy_sprite):
                 text = 'You Won Press P to play again or Q to quit'
-                display = self.font.render(text, True, 'red')
+                display = self.font.render(text, True, 'yellow')
                 display_rect = display.get_rect(center=(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2))
                 pygame.draw.rect(self.display_surface, 'green', display_rect.inflate(30, 30), width=5, border_radius=10)
                 self.display_surface.blit(display, display_rect)
