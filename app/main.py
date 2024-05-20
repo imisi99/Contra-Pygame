@@ -78,7 +78,7 @@ class Begin:
         for obj in tmx_map.get_layer_by_name('Entities'):
             if obj.name == 'Player':
                 self.player = Player((obj.x, obj.y), [self.all_sprites, self.vulnerable_sprite],
-                                     '../graphics/player', self.collision_sprite,
+                                     '../graphics/player', self.collision_sprite, self.enemy_sprite,
                                      self.shoot)
             if obj.name == 'Enemy':
                 Enemy((obj.x, obj.y), [self.all_sprites, self.vulnerable_sprite, self.enemy_sprite],
