@@ -23,7 +23,24 @@ class EnemyNum:
 
     def display(self):
         text = f'Enemies: {len(self.enemies)}'
-        display = self.font.render(text, True, 'yellow')
+        display = self.font.render(text, True, 'blue')
         display_rect = display.get_rect(center=(WINDOW_WIDTH - 100, 30))
-        pygame.draw.rect(self.display_surface, 'green', display_rect.inflate(30, 30), width=5, border_radius=10)
+        pygame.draw.rect(self.display_surface, 'red', display_rect.inflate(30, 30), width=5, border_radius=10)
+        self.display_surface.blit(display, display_rect)
+
+
+class BulletCount:
+    def __init__(self, player):
+        self.player = player
+        self.display_surface = pygame.display.get_surface()
+        self.font = pygame.font.Font('../graphics/subatomic.ttf', 20)
+
+    def display(self):
+        if self.player.count != 0:
+            text = f'Bullet: {self.player.count}'
+        else:
+            text = 'Reloading...'
+        display = self.font.render(text, True, 'blue')
+        display_rect = display.get_rect(center=(WINDOW_WIDTH - 100, 80))
+        pygame.draw.rect(self.display_surface, 'red', display_rect.inflate(30, 30), width=5, border_radius=10)
         self.display_surface.blit(display, display_rect)

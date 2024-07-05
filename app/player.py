@@ -21,6 +21,8 @@ class Player(Entity):
         self.enemy_sprite = enemy_sprite
 
         self.cooldown = 200
+        self.count = 20
+        self.reload_timer = 7000
 
     def input(self):
         keys = pygame.key.get_pressed()
@@ -46,15 +48,19 @@ class Player(Entity):
         else:
             self.duck = False
 
-        if keys[pygame.K_SPACE] and self.can_shoot:
+        if keys[pygame.K_SPACE] and self.can_shoot and self.count != 0:
             direction = Vector(1, 0) if self.status.split('_')[0] == 'right' else Vector(-1, 0)
             pos = self.rect.center + direction * 70
             y_offset = Vector(0, -10) if not self.duck else Vector(1, 10)
             self.shoot(entity=self, pos=pos + y_offset, direction=direction)
 
             self.can_shoot = False
+            self.count -= 1
             self.shoot_time = pygame.time.get_ticks()
             self.bullet_sound.play()
+
+        if keys[pygame.K_r] and self.shoot_time is not None:
+            self.count = 0
 
     def get_status(self):
         if self.direction.x == 0 and self.on_floor:
@@ -143,6 +149,12 @@ class Player(Entity):
         if self.rect.y >= 2750:
             self.health = 0
 
+    def reload(self):
+        if self.count == 0:
+            current_time = pygame.time.get_ticks()
+            if current_time - self.shoot_time > self.reload_timer:
+                self.count = 20
+
     def update(self, dt):
         self.old_rect = self.rect.copy()
         self.input()
@@ -155,4 +167,4 @@ class Player(Entity):
         self.blink()
         self.invulnerable_timer()
         self.walls()
-
+        self.reload()

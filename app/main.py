@@ -7,7 +7,7 @@ from pygame.math import Vector2 as Vector
 from bullet import Bullet, FireAnimation
 from enemy import Enemy
 from player import Player
-from health_bar import HealthBar, EnemyNum
+from health_bar import HealthBar, EnemyNum, BulletCount
 
 
 class AllSprites(pygame.sprite.Group):
@@ -56,6 +56,7 @@ class Begin:
         self.setup()
         self.health_bar = HealthBar(self.player)
         self.score_count = EnemyNum(self.enemy_sprite)
+        self.bullet_count = BulletCount(self.player)
 
         self.font = pygame.font.Font('../graphics/subatomic.ttf', 20)
         self.bullet_surf = pygame.image.load('../graphics/bullet.png').convert_alpha()
@@ -146,6 +147,7 @@ class Begin:
 
                 self.health_bar.display()
                 self.score_count.display()
+                self.bullet_count.display()
 
                 if self.time < 5:
                     text = 'Press space bar to shoot and arrows to navigate'
@@ -173,6 +175,7 @@ class Begin:
                     self.enemy_sprite.empty()
                     self.setup()
                     self.health_bar = HealthBar(self.player)
+                    self.bullet_count = BulletCount(self.player)
 
                 if keys[pygame.K_q]:
                     pygame.quit()
@@ -195,6 +198,7 @@ class Begin:
                     self.enemy_sprite.empty()
                     self.setup()
                     self.health_bar = HealthBar(self.player)
+                    self.bullet_count = BulletCount(self.player)
 
                 if keys[pygame.K_q]:
                     pygame.quit()
